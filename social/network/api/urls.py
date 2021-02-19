@@ -8,5 +8,6 @@ urlpatterns = [
     path('edit/<int:pk>/', views.PostUpdate.as_view()),
     path('posts/', views.AllPostList.as_view()),
     path('search/', views.SearchPost.as_view()),
+    path('like/', views.LikePost.as_view()),
 
 ]

@@ -4,6 +4,10 @@ from network.api.serializers import PostSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from django.shortcuts import render, get_object_or_404
+
+
+
 class PostList(ListAPIView):
   serializer_class = PostSerializer
 
@@ -37,3 +41,9 @@ class SearchPost(APIView):
     posts = Post.objects.filter(body__contains=search_data)
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
+
+
+class LikePost(APIView):
+  def get(self, request, format=None):
+    post = get_object_or_404(Post, id=request.GET.get('id'))
+    import pdb; pdb.set_trace()

@@ -15,19 +15,16 @@
 
 {% block js %}
 
+
 <script type="text/javascript">
   $(document).ready(function(){
-    console.log('btn clicked..')
     $.ajax({
       url: 'http://127.0.0.1:8000/api/posts/',
       type: 'GET',
       success: function(data){
-        console.log(data);
         for (i=0; i<data.length; i++){
            $("#postsid").append("<div id=section"+data[i].id+"><br><h3>" + data[i].user.username + "</h3><p id=body"+data[i].id+">" + data[i].body + "</p><p>" + data[i].created_at.split('T')[0] + "</p><hr></div>")
-
         }
-
       }
     })
   })
@@ -37,7 +34,6 @@
 <script type="text/javascript">
   $(document).on('keyup', '.search', function(event){
     event.preventDefault();
-    console.log('btn clicked')
     let srchdata = $("#searchid").val()
 
     $.ajax({
@@ -45,7 +41,6 @@
       type: 'GET',
       data: {'srch':srchdata},
       success: function(data){
-        console.log(data)
         $("#postsid").html('')
         for (i=0; i<data.length; i++){
            $("#postsid").append("<div id=section"+data[i].id+"><br><h3>" + data[i].user.username + "</h3><p id=body"+data[i].id+">" + data[i].body + "</p><p>" + data[i].created_at.split('T')[0] + "</p><hr></div>")
