@@ -1,0 +1,154 @@
+{% extends 'network/base.html' %}
+
+{% block body %}
+
+<a href="{% url 'account_logout' %}">Logout</a> &nbsp &nbsp
+<a href="{% url 'all_posts' %}">All Post</a>
+
+<h1>Index Page...</h1>
+<br>
+<form>
+  {% csrf_token %}
+
+  {{form.as_p}}
+  <input type="submit" name="" value="Post" id="postbtn">
+</form>
+<br><br>
+
+
+<div id="postdata">
+</div>
+{% endblock %}
+
+
+{% block js %}
+
+ <!-- Get posts API AJAX -->
+<script type="text/javascript">
+  $(document).ready(function(){
+    console.log('button clicked..')
+    $.ajax({
+      url: 'http://127.0.0.1:8000/api/list/',
+      type: 'GET',
+      success: function(data){
+        console.log(data);
+        // console.log(typeof(data));
+        for (i=0; i<data.length; i++){
+           $("#postdata").append("<div id=section"+data[i].id+"><br><h3>" + data[i].user.username + "</h3><input type='textarea' class='form-control' style='display: none;' id=box"+data[i].id+"><p id=body"+data[i].id+">" + data[i].body + "</p><p>" + data[i].created_at.split('T')[0] + "</p>" + "<input type='submit' value='Delete' id='delbtn' class='del' data-id=" + data[i].id + "> <input type='submit' value='Edit' class='edit' id=editbtn"+data[i].id+ " data-id=" + data[i].id + "><input type='submit' value='Save' style='display: none;' data-id="+data[i].id+" class='save' id=save"+data[i].id+ "> <input type='submit' class='like' value='Like' id=like"+data[i].id+ "><br><hr></div>")
+
+        }
+
+      }
+    })
+  })
+</script>
+
+<!-- Create post API AJAX -->
+<script type="text/javascript">
+  $("#postbtn").click(function(event){
+    event.preventDefault();
+    console.log("button clicked..")
+    let post = $("#id_body").val()
+    let username = $(this).attr("data-user")
+    console.log(JSON.stringify(post))
+    console.log(username)
+
+    $.ajax({
+      url: 'http://127.0.0.1:8000/api/create/',
+      method: 'POST',
+      headers: {
+              'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val()
+            },
+      data : {'body':post},
+      success: function(data){
+        console.log(data)
+        $("form")[0].reset();
+        $("#postdata").prepend("<div id=section"+data.id+"><br><h3>" + data.user.username + "</h3><input type='textarea' class='form-control' style='display: none;' id=box"+data.id+"><p id=body"+data.id+">" + data.body + "</p><p>" + data.created_at.split('T')[0] + "</p>" + "<input type='submit' value='Delete' id='delbtn' class='del' data-id=" + data.id + "> <input type='submit' value='Edit' class='edit' id=editbtn"+data.id+ " data-id=" + data.id + "><input type='submit' value='Save' style='display: none;' data-id="+data.id+" class='save' id=save"+data.id+ "><br><hr></div>")
+
+      }
+    })
+  })
+</script>
+
+<!-- Delete API AJAX -->
+<script type="text/javascript">
+  $(document).on('click', '.del', function(event){
+    event.preventDefault();
+    console.log("btn clicked...")
+    let id = $(this).attr('data-id')
+    url = 'http://127.0.0.1:8000/api/delete/' + id + '/'
+    console.log(id)
+    console.log(url )
+
+
+    $.ajax({
+      url: url,
+      headers: {
+              'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val()
+            },
+      method: 'DELETE',
+      success: function(response){
+        console.log('delete success..')
+        $("#section"+id).hide();
+      }
+    })
+
+  })
+</script>
+
+<!-- Create API AJAX -->
+<script type="text/javascript">
+  $(document).on('click', '.edit', function(event){
+    event.preventDefault();
+    console.log("btn clicked..")
+    let id = $(this).attr("data-id")
+    console.log(id)
+    let x = $("#body"+id).text()
+    console.log(x)
+    $("#body"+id).hide()
+    $("#editbtn"+id).hide()
+    $("#box"+id).show()
+    $("#box"+id).val(x)
+    $("#save"+id).show()
+  })
+
+  $(document).on('click', '.save', function(event){
+    event.preventDefault();
+    console.log("btn clicked..")
+    let id = $(this).attr("data-id")
+    console.log(id)
+    let post = $("#box"+id).val()
+    console.log(post)
+    url = 'http://127.0.0.1:8000/api/edit/' + id + '/'
+
+    $.ajax({
+      url: url,
+      headers: {
+              'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val()
+            },
+      method: "PUT",
+      data: {'body':post},
+      success: function(data){
+        console.log(data)
+        $("#box"+data.id).hide()
+        $("#body"+data.id).show()
+        $("#body"+data.id).html(data.body)
+        $("#save"+data.id).hide()
+        $("#editbtn"+data.id).show()
+      }
+    })
+  })
+</script>
+
+
+<script type="text/javascript">
+  $(document).on('click', '.like', function(event){
+    event.preventDefault();
+    console.log('btn clicked..')
+  })
+</script>
+
+
+
+
+{% endblock %}
